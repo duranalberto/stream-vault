@@ -1,0 +1,88 @@
+{
+  "version": 9,
+  "updatedAt": "2026-09-26T20:09:22.190890Z",
+  "videos": [
+    {
+      "id": "2026-07-31-16-51-33",
+      "title": "Splatoon 3 - Tower Control - Sturgeon Shipyard - 2 July 2026",
+      "description": "Gameplay of Splatoon 3. Online match, Tower Control - Sturgeon Shipyard.",
+      "publishedAt": "2026-09-26",
+      "tags": [
+        "gameplay",
+        "Splatoon 3",
+        "Towe Control",
+        "Online"
+      ],
+      "durationMs": 357800,
+      "playbackUrl": "https://d2mcml34hdlt3o.cloudfront.net/videos/2026-07-31-16-51-33/master.m3u8"
+    },
+    {
+      "id": "2026-07-12-16-22-18",
+      "title": "Splatoon 3 - Splatfest Turf War - 12 July 2026",
+      "description": "Gameplay of Splatoon 3. Online match, Splatfest Turf War.",
+      "publishedAt": "2026-09-26",
+      "tags": [
+        "gameplay",
+        "Splatoon 3",
+        "Splatfest",
+        "Turf War",
+        "Online"
+      ],
+      "durationMs": 241316,
+      "playbackUrl": "https://d2mcml34hdlt3o.cloudfront.net/videos/2026-07-12-16-22-18/master.m3u8"
+    },
+    {
+      "id": "2026-07-04-14-00-58",
+      "title": "Mario Kart World - Online - Knockout Tour - Golden Rally, Second Place",
+      "description": "Gameplay of Mario Kart World. Knockout Tour online match in Golden Rally. Ended as second place with Rosalina.",
+      "publishedAt": "2026-09-26",
+      "tags": [
+        "gameplay",
+        "Mario Kart World",
+        "Online",
+        "Knockout Tour"
+      ],
+      "durationMs": 553883,
+      "playbackUrl": "https://d2mcml34hdlt3o.cloudfront.net/videos/2026-07-04-14-00-58/master.m3u8"
+    },
+    {
+      "id": "2026-07-02-11-47-26",
+      "title": "Mario Tennis Fever - Extended Play - Rosalina vs Daisy",
+      "description": "Gameplay of Mario Tennis Fever. Extended Play, Rosalina vs Daisy (I am Rosalina). Without fever rackets.",
+      "publishedAt": "2026-09-25",
+      "tags": [
+        "gameplay",
+        "Mario Tennis Fever"
+      ],
+      "durationMs": 405750,
+      "playbackUrl": "https://d2mcml34hdlt3o.cloudfront.net/videos/2026-07-02-11-47-26/master.m3u8"
+    },
+    {
+      "id": "2026-07-02-11-42-32",
+      "title": "Mario Kart World - Online - Mario Bros. Circuit",
+      "description": "Online match at Mario Kart, playing with Rosaline",
+      "publishedAt": "2026-07-03",
+      "tags": [
+        "gameplay",
+        "Mario Kart World",
+        "Online"
+      ],
+      "durationMs": 178133,
+      "playbackUrl": "https://d2mcml34hdlt3o.cloudfront.net/videos/2026-07-02-11-42-32/master.m3u8"
+    },
+    {
+      "id": "2026-07-02-v1",
+      "title": "Splatoon 3 - Rainmaker Match - 2 July 2026",
+      "description": "Gameplay of Splatoon 3. Online match, Splatfest Turf War.",
+      "publishedAt": "2026-07-02",
+      "tags": [
+        "gameplay",
+        "Splatoon 3",
+        "Rainmaker",
+        "Online"
+      ],
+      "durationMs": 241000,
+      "playbackUrl": "https://d2mcml34hdlt3o.cloudfront.net/videos/2026-07-02-v1/master.m3u8"
+    }
+  ]
+}
