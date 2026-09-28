@@ -14,6 +14,8 @@ const cdnProxy = {
 
 // https://vite.dev/config/
 export default defineConfig({
+  // GitHub Pages serves this app as a project site under /stream-vault/.
+  base: "/stream-vault/",
   plugins: [react()],
   server: { proxy: cdnProxy },
   preview: { proxy: cdnProxy },
