@@ -47,20 +47,19 @@ function stubClipboard(writeText: () => Promise<void>) {
 }
 
 describe("ShareBar", () => {
-  it("renders social share links with the video url and title", () => {
+  it("renders social share links tailored to each platform", () => {
     renderShareBar();
 
     const encodedUrl = encodeURIComponent(
       "http://localhost:3000/video/2026-07-31-16-51-33",
     );
-    const text =
-      "Tower Control — Gameplay of Splatoon 3. Annotated run through the " +
-      "tower control map, showing a defensive setup.";
-    const encodedText = encodeURIComponent(text);
 
     const x = screen.getByRole("link", { name: "Share on X" });
     expect(decodedHref(x)).toContain(`twitter.com/intent/tweet?url=${encodedUrl}`);
-    expect(decodedHref(x)).toContain(`text=${encodedText}`);
+    expect(decodedHref(x)).toContain(`text=${encodeURIComponent("🎮 Tower Control")}`);
+    expect(decodedHref(x)).toContain(
+      `hashtags=${encodeURIComponent("Splatoon3,Gameplay")}`,
+    );
     expect(x).toHaveAttribute("target", "_blank");
     expect(x).toHaveAttribute("rel", expect.stringContaining("noreferrer"));
 
@@ -68,22 +67,35 @@ describe("ShareBar", () => {
     expect(decodedHref(facebook)).toContain(
       `facebook.com/sharer/sharer.php?u=${encodedUrl}`,
     );
+    expect(decodedHref(facebook)).toContain(
+      `hashtag=${encodeURIComponent("#Splatoon3")}`,
+    );
     expect(facebook).toHaveAttribute("target", "_blank");
 
     const linkedin = screen.getByRole("link", { name: "Share on LinkedIn" });
     expect(decodedHref(linkedin)).toContain(
-      `linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+      "linkedin.com/feed/?shareActive=true&text=",
     );
+    const linkedinText = decodeURIComponent(
+      decodedHref(linkedin).split("text=")[1],
+    );
+    expect(linkedinText).toContain("Tower Control");
+    expect(linkedinText).toContain(window.location.href);
+    expect(linkedinText).toContain("#Gaming");
 
     const reddit = screen.getByRole("link", { name: "Share on Reddit" });
     expect(decodedHref(reddit)).toContain(
       `reddit.com/submit?url=${encodedUrl}`,
     );
-    expect(decodedHref(reddit)).toContain(`title=${encodedText}`);
+    expect(decodedHref(reddit)).toContain(
+      `title=${encodeURIComponent("Tower Control")}`,
+    );
 
     const whatsapp = screen.getByRole("link", { name: "Share on WhatsApp" });
     expect(decodedHref(whatsapp)).toBe(
-      `https://api.whatsapp.com/send?text=${encodeURIComponent(`${text} ${window.location.href}`.trim())}`,
+      `https://api.whatsapp.com/send?text=${encodeURIComponent(
+        `Check out this Splatoon 3 clip 🎮\nTower Control\n${window.location.href}`,
+      )}`,
     );
   });
 
@@ -107,33 +119,12 @@ describe("ShareBar", () => {
   it("renders an email share link with the title as subject", () => {
     renderShareBar();
     const email = screen.getByRole("link", { name: "Share by email" });
-    expect(decodedHref(email)).toBe(
-      `mailto:?subject=${encodeURIComponent(
-        "Tower Control — Gameplay of Splatoon 3. Annotated run through the tower control map, showing a defensive setup.",
-      )}&body=${encodeURIComponent(
-        `Watch Tower Control — Gameplay of Splatoon 3. Annotated run through the tower control map, showing a defensive setup. at ${window.location.href}`,
-      )}`,
-    );
+    const href = decodedHref(email);
+    expect(href).toContain(`mailto:?subject=${encodeURIComponent("Tower Control")}`);
+    const body = decodeURIComponent(href.split("&body=")[1]);
+    expect(body).toContain("Splatoon 3");
+    expect(body).toContain(window.location.href);
     expect(email).not.toHaveAttribute("target");
-  });
-
-  it("truncates long share text to 120 characters", () => {
-    const longVideo: CatalogVideo = {
-      ...video,
-      description: "word ".repeat(60).trim(),
-    };
-    render(
-      <ChakraProvider value={defaultSystem}>
-        <ShareBar video={longVideo} />
-        <AppToaster />
-      </ChakraProvider>,
-    );
-    const href = screen
-      .getByRole("link", { name: "Share on X" })
-      .getAttribute("href") ?? "";
-    const text = decodeURIComponent(href.split("text=")[1]);
-    expect(text.endsWith("…")).toBe(true);
-    expect(text.length).toBeLessThanOrEqual(120);
   });
 
   it("copies the page url when the clipboard is available", async () => {

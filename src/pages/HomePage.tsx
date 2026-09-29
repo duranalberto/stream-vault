@@ -12,6 +12,7 @@ import {
 import { useMemo, useState } from "react";
 import { VideoCard } from "../components/VideoCard";
 import { FilterBar } from "../components/FilterBar";
+import { Hero } from "../components/Hero";
 import { Layout } from "../components/Layout";
 import { useCatalog } from "../hooks/useCatalog";
 import {
@@ -79,7 +80,7 @@ function Home({
 
   return (
     <Stack gap={5}>
-      <Text fontSize="lg" fontWeight="semibold" as="h1">
+      <Text fontSize="lg" fontWeight="semibold" as="h2">
         {filtered.length} {filtered.length === 1 ? "video" : "videos"} available
       </Text>
       <FilterBar filters={filters} onChange={onFiltersChange} />
@@ -119,14 +120,17 @@ export function HomePage() {
   );
   return (
     <Layout>
-      <Home
-        videos={sorted}
-        filters={filters}
-        onFiltersChange={setFilters}
-        loading={loading}
-        error={error}
-        retry={retry}
-      />
+      <Stack gap={6}>
+        <Hero />
+        <Home
+          videos={sorted}
+          filters={filters}
+          onFiltersChange={setFilters}
+          loading={loading}
+          error={error}
+          retry={retry}
+        />
+      </Stack>
     </Layout>
   );
 }

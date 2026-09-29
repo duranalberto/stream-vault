@@ -1,8 +1,7 @@
 import {
-  Box,
   Button,
   Flex,
-  HStack,
+  SimpleGrid,
   Input,
   Stack,
   Text,
@@ -21,76 +20,82 @@ import {
 } from "react-icons/fa6";
 import type { CatalogVideo } from "../types/catalog";
 import { toastStore } from "../lib/toastStore";
+import { buildShareMessage } from "../lib/shareMessages";
 
 interface ShareTarget {
   label: string;
   shortLabel: string;
   icon: IconType;
-  href: (url: string, text: string) => string;
+  href: (url: string, video: CatalogVideo) => string;
   email?: boolean;
 }
+
+const enc = encodeURIComponent;
 
 const targets: readonly ShareTarget[] = [
   {
     label: "Share on X",
     shortLabel: "X",
     icon: FaXTwitter,
-    href: (url, text) =>
-      `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`,
+    href: (url, video) => {
+      const m = buildShareMessage("x", video);
+      return `https://twitter.com/intent/tweet?url=${enc(url)}&text=${enc(m.text)}&hashtags=${enc(m.hashtags.join(","))}`;
+    },
   },
   {
     label: "Share on Facebook",
     shortLabel: "Facebook",
     icon: FaFacebook,
-    href: (url) =>
-      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    href: (url, video) => {
+      const m = buildShareMessage("facebook", video);
+      const tag = m.hashtags[0] ? `&hashtag=${enc(`#${m.hashtags[0]}`)}` : "";
+      return `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}${tag}`;
+    },
   },
   {
     label: "Share on LinkedIn",
     shortLabel: "LinkedIn",
     icon: FaLinkedin,
-    href: (url) =>
-      `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+    // The feed composer accepts pre-filled text; the share-offsite endpoint
+    // ignores it.
+    href: (url, video) => {
+      const m = buildShareMessage("linkedin", video);
+      const tags = m.hashtags.map((h) => `#${h}`).join(" ");
+      return `https://www.linkedin.com/feed/?shareActive=true&text=${enc(`${m.text}\n\n${url}\n\n${tags}`)}`;
+    },
   },
   {
     label: "Share on Reddit",
     shortLabel: "Reddit",
     icon: FaReddit,
-    href: (url, text) =>
-      `https://www.reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(text)}`,
+    href: (url, video) =>
+      `https://www.reddit.com/submit?url=${enc(url)}&title=${enc(buildShareMessage("reddit", video).text)}`,
   },
   {
     label: "Share on WhatsApp",
     shortLabel: "WhatsApp",
     icon: FaWhatsapp,
-    href: (url, text) =>
-      `https://api.whatsapp.com/send?text=${encodeURIComponent(`${text} ${url}`.trim())}`,
+    href: (url, video) =>
+      `https://api.whatsapp.com/send?text=${enc(`${buildShareMessage("whatsapp", video).text}\n${url}`)}`,
   },
   {
     label: "Share by email",
     shortLabel: "Email",
     icon: FaEnvelope,
     email: true,
-    href: (url, text) =>
-      `mailto:?subject=${encodeURIComponent(text)}&body=${encodeURIComponent(
-        `Watch ${text} at ${url}`,
-      )}`,
+    href: (url, video) => {
+      const m = buildShareMessage("email", video);
+      return `mailto:?subject=${enc(m.subject ?? "")}&body=${enc(`${m.text}\n\n${url}`)}`;
+    },
   },
 ];
-
-function buildShareText(video: CatalogVideo): string {
-  const description = video.description.replace(/\s+/g, " ").trim();
-  const suffix = description.length > 0 ? ` — ${description}` : "";
-  const full = `${video.title}${suffix}`;
-  return full.length > 120 ? `${full.slice(0, 117)}…` : full;
-}
 
 export function ShareBar({ video }: { video: CatalogVideo }) {
   const [copyFailed, setCopyFailed] = useState(false);
 
   const url =
     typeof window !== "undefined" ? window.location.href : "";
-  const text = useMemo(() => buildShareText(video), [video]);
+  const text = useMemo(() => buildShareMessage("native", video).text, [video]);
   const canNativeShare =
     typeof navigator !== "undefined" && "share" in navigator;
 
@@ -135,30 +140,32 @@ export function ShareBar({ video }: { video: CatalogVideo }) {
   }
 
   return (
-    <Box
-      borderWidth="1px"
-      borderColor="border"
-      bg="bg.muted/30"
-      borderRadius="lg"
-      p={5}
-    >
-      <Stack gap={4}>
-        <Text fontWeight="semibold" as="h2">
+      <Stack gap={3}>
+        <Text
+          as="h2"
+          fontSize="sm"
+          fontWeight="semibold"
+          color="fg.muted"
+          textTransform="uppercase"
+          letterSpacing="wider"
+        >
           Share this video
         </Text>
-        <HStack wrap="wrap" gap={2}>
+        <SimpleGrid columns={2} gap={2}>
           {targets.map((target) => {
             const Icon = target.icon;
             return (
               <Button
                 key={target.label}
                 size="sm"
-                variant={target.email ? "ghost" : "outline"}
+                w="full"
+                justifyContent="flex-start"
+                variant="outline"
                 aria-label={target.label}
                 asChild
               >
                 <a
-                  href={target.href(url, text)}
+                  href={target.href(url, video)}
                   target={target.email ? undefined : "_blank"}
                   rel={target.email ? undefined : "noreferrer nofollow"}
                 >
@@ -170,12 +177,29 @@ export function ShareBar({ video }: { video: CatalogVideo }) {
               </Button>
             );
           })}
+          <Button
+            size="sm"
+            w="full"
+            justifyContent="flex-start"
+            variant="outline"
+            aria-label="Copy video URL"
+            gridColumn="1 / -1"
+            onClick={handleCopy}
+          >
+            <Flex align="center" gap={2}>
+              <FaCopy size={14} aria-hidden="true" focusable="false" />
+              <Text as="span">Copy video URL</Text>
+            </Flex>
+          </Button>
           {canNativeShare && (
             <Button
               size="sm"
+              w="full"
+              justifyContent="flex-start"
               variant="solid"
               colorPalette="teal"
               aria-label="Share with device share sheet"
+              gridColumn="1 / -1"
               onClick={handleNativeShare}
             >
               <Flex align="center" gap={2}>
@@ -188,21 +212,8 @@ export function ShareBar({ video }: { video: CatalogVideo }) {
               </Flex>
             </Button>
           )}
-        </HStack>
-        <Box as="hr" borderTopWidth="1px" borderColor="border" my={1} />
-        <HStack wrap="wrap" gap={3} align="center">
-          <Button
-            size="sm"
-            variant="outline"
-            aria-label="Copy video URL"
-            onClick={handleCopy}
-          >
-            <Flex align="center" gap={2}>
-              <FaCopy size={14} aria-hidden="true" focusable="false" />
-              <Text as="span">Copy video URL</Text>
-            </Flex>
-          </Button>
-          {copyFailed && (
+        </SimpleGrid>
+        {copyFailed && (
             <Input
               size="sm"
               readOnly
@@ -210,9 +221,7 @@ export function ShareBar({ video }: { video: CatalogVideo }) {
               placeholder="Video URL"
               onFocus={(e) => e.currentTarget.select()}
             />
-          )}
-        </HStack>
+        )}
       </Stack>
-    </Box>
   );
 }

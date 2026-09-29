@@ -3,7 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="refresh" content="0; url=/stream-vault/" />
+    <script>
+      // SPA fallback: send deep links (/stream-vault/video/<id>) to the app
+      // shell, which restores the original path from ?p=.
+      var base = "/stream-vault/";
+      var path = location.pathname;
+      var rest = path.indexOf(base) === 0 ? path.slice(base.length - 1) : "/";
+      location.replace(base + "?p=" + encodeURIComponent(rest + location.search + location.hash));
+    </script>
     <title>Redirecting…</title>
     <style>
       body {

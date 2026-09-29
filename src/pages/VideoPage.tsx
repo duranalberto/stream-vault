@@ -1,6 +1,7 @@
 import {
   Box,
   Flex,
+  Grid,
   HStack,
   Heading,
   Link,
@@ -67,53 +68,65 @@ export function VideoPage() {
           borderColor="border"
           bg="bg.muted/30"
           borderRadius="lg"
-          p={5}
+          p={{ base: 4, md: 6 }}
         >
-          <Stack gap={3}>
-            <Heading size="lg" as="h1">
-              {video.title}
-            </Heading>
-            <Text color="fg.muted">
-              {video.description}
-            </Text>
-            <Flex
-              gap={4}
-              flexWrap="wrap"
-              rowGap={2}
-              fontSize="sm"
-              color="fg.muted"
+          <Grid
+            templateColumns={{ base: "1fr", md: "minmax(0, 1fr) 20rem" }}
+            gap={{ base: 6, md: 8 }}
+          >
+            <Stack gap={5} minW={0}>
+              <Stack gap={2}>
+                <Heading size="lg" as="h1">
+                  {video.title}
+                </Heading>
+                <Flex
+                  gap={4}
+                  flexWrap="wrap"
+                  rowGap={1}
+                  fontSize="sm"
+                  color="fg.muted"
+                >
+                  <Flex align="center" gap={2}>
+                    <FaCalendarDays size={14} aria-hidden="true" focusable="false" />
+                    <Text as="span">
+                      Published: {formatDate(video.publishedAt)}
+                    </Text>
+                  </Flex>
+                  <Flex align="center" gap={2}>
+                    <FaClock size={14} aria-hidden="true" focusable="false" />
+                    <Text as="span">
+                      Duration: {formatDuration(video.durationMs)}
+                    </Text>
+                  </Flex>
+                </Flex>
+              </Stack>
+              <Text color="fg.muted">{video.description}</Text>
+              {visibleTags.length > 0 && (
+                <HStack wrap="wrap" gap={2}>
+                  {visibleTags.map((tag) => (
+                    <TagRoot
+                      key={tag}
+                      size="sm"
+                      variant="subtle"
+                      colorPalette="teal"
+                    >
+                      {tag}
+                    </TagRoot>
+                  ))}
+                </HStack>
+              )}
+            </Stack>
+            <Box
+              borderTopWidth={{ base: "1px", md: "0" }}
+              borderLeftWidth={{ base: "0", md: "1px" }}
+              borderColor="border"
+              pt={{ base: 5, md: 0 }}
+              pl={{ base: 0, md: 8 }}
             >
-              <Flex align="center" gap={2}>
-                <FaCalendarDays size={14} aria-hidden="true" focusable="false" />
-                <Text as="span">
-                  Published: {formatDate(video.publishedAt)}
-                </Text>
-              </Flex>
-              <Flex align="center" gap={2}>
-                <FaClock size={14} aria-hidden="true" focusable="false" />
-                <Text as="span">
-                  Duration: {formatDuration(video.durationMs)}
-                </Text>
-              </Flex>
-            </Flex>
-          </Stack>
+              <ShareBar video={video} />
+            </Box>
+          </Grid>
         </Box>
-        {visibleTags.length > 0 && (
-          <HStack wrap="wrap" gap={3}>
-            {visibleTags.map((tag) => (
-              <TagRoot
-                key={tag}
-                size="sm"
-                variant="subtle"
-                colorPalette="teal"
-              >
-                {tag}
-              </TagRoot>
-            ))}
-          </HStack>
-        )}
-        <Box as="hr" borderTopWidth="1px" borderColor="border" mt={2} />
-        <ShareBar video={video} />
       </Stack>
     </Layout>
   );
