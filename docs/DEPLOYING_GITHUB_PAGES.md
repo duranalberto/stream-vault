@@ -53,14 +53,14 @@ jobs:
     env:
       NODE_VERSION: "22"
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
       - run: npm ci
       - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
@@ -70,7 +70,7 @@ jobs:
     if: github.event_name != 'workflow_dispatch'
     steps:
       - id: validate
-        uses: actions/github-script@v7
+          uses: actions/github-script@v8
         with:
           script: |
             github.rest.pages.getSite({
@@ -87,7 +87,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 ```
 
 This uses the current "Deploy to GitHub Pages with Express/Actions" template
@@ -105,24 +105,22 @@ The site is then available at:
 - `https://<username-or-org>.github.io/` — user/org site (repo name must
   match the account name)
 
-## Router base path
+## Router base path and deep links
 
-`src/app.tsx` builds the router with `createBrowserRouter`, whose default base
-is `/`. On a project site (`<owner>.github.io/<repo>/`) the app loads at the
-site root, so the default works — but video detail routes live under
-`/video/:id`, and a hard navigation to `https://<owner>.github.io/<repo>/video/xyz`
-returns GitHub's 404.
+`src/app.tsx` builds the router with `createBrowserRouter`, `vite.config.ts`
+sets `base: "/stream-vault/"`, so routes are clean:
+`https://<owner>.github.io/<repo>/video/xyz`.
 
-If deep links matter, switch to a sub-based router:
+GitHub Pages has no SPA fallback, so a **hard** navigation (refresh, or pasting
+a video URL cold) to `/stream-vault/video/xyz` returns GitHub's 404. The
+bundled `public/404.html` redirects the user to `/stream-vault/` (the Home
+page), from which they can re-open the video. In-app navigation (clicking a
+video card) uses the history router and is unaffected.
 
-```tsx
-createHashRouter([...])
-```
-
-URLs become `https://<owner>.github.io/<repo>/#/video/xyz`, which always
-resolves to `index.html` in one request and needs zero server configuration.
-(Or keep the history router and add a SPA fallback, e.g. a GitHub `404.html`
-redirect trick — the hash router is the simpler, reliable choice.)
+If zero-404 deep links matter, either serve from a host with a SPA fallback
+(custom domain, Cloudflare Pages, Vercel, …) or — less clean, but
+zero-config — switch `createBrowserRouter` to `createHashRouter`, which yields
+`https://<owner>.github.io/<repo>/#/video/xyz`.
 
 ## Media and CORS
 
@@ -166,8 +164,8 @@ export function toSameOrigin(url: string): string {
 ## Checklist
 
 - [ ] `npm run build` passes locally
-- [ ] Router base works on the target Pages URL (hash router if deep links
-      matter)
+- [ ] Router base works on the target Pages URL (`public/404.html` covers
+      hard-refresh deep links with a redirect to Home)
 - [ ] Catalog and HLS playback resolve without a `/cdn` proxy (adjust
       `toSameOrigin`, or accept the bundled-catalog fallback)
 - [ ] `.github/workflows/deploy.yml` added and Pages source set to

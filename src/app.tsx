@@ -1,5 +1,5 @@
 import { Suspense, lazy } from "react";
-import { createHashRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ChakraProvider, defaultSystem, Flex, Spinner, Text } from "@chakra-ui/react";
 import { HomePage } from "./pages/HomePage";
 import { NotFoundPage } from "./pages/NotFoundPage";
@@ -25,7 +25,7 @@ function RouteFallback() {
   );
 }
 
-const router = createHashRouter([
+const router = createBrowserRouter([
   { path: "/", element: <HomePage /> },
   {
     path: "/video/:id",
